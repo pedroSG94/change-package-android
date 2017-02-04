@@ -3,6 +3,7 @@
 Python3 script for change package name to your Android projects or modules
 
 Tested on Ubuntu 16.04. Python 3.5.2
+
 Should work on Mac and Windows (not tested)
 
 #Usage
