@@ -1,22 +1,25 @@
 import os
 import sys
+import shutil
 
+initial_folder = os.path.abspath(".")
 package_separator = "."
 old_package = sys.argv[1]
 new_package = sys.argv[2]
 
-def check_length():
-	print("checking package length")
-	if(len(old_package.split(package_separator)) == len(new_package.split(package_separator))):
-		print("length supported")
+def check_original_route():
+	print("checking original package...")
+	original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(package_separator, os.sep)
+	if(os.path.isdir(original_route)):
+		print("original folder exists")
 	else:
-		print("length unsupported")
-		print("script failed")
+		print("original folder not found, write a correct original package")
 		sys.exit()
+	#sys.exit()
 
 def show_arguments():
-	print("Old package: " + old_package)
-	print("New package: " + new_package)
+	print("old package: " + old_package)
+	print("new package: " + new_package)
 
 def replace_text(path_file, old_text, new_text):
 	f = open(path_file, "r")
@@ -27,31 +30,35 @@ def replace_text(path_file, old_text, new_text):
 	f.write(t)
 	f.close()
 
-def list_folder(path_folder):
+def change_files(path_folder):
 	print("current directory: " + path_folder)
 	
 	for f in os.listdir(path_folder):
 		print("file " + str(f))
-
 		#is a folder
 		if os.path.isdir(path_folder + os.sep + f):
 			abs_path = os.path.abspath(path_folder + os.sep + str(f))
+			#ignore build folder
 			if(str(f) != "build"):
-				list_folder(abs_path)
-			for i in range(len(old_package.split(package_separator))):
-				if(str(f) == old_package.split(package_separator)[i]):
-					os.rename(path_folder + os.sep + str(f), path_folder + os.sep + new_package.split(package_separator)[i])
-
+				change_files(abs_path)
 		#is a file
 		else:
-			#only change java and xml files
-			if(str(f).endswith(".java") or str(f).endswith(".xml")):
+			#only change java, xml and gradle files
+			if(str(f).endswith(".java") or str(f).endswith(".xml") or str(f).endswith(".gradle")):
 				replace_text(path_folder + os.sep + str(f), old_package, new_package)
 			else:
 				print("ignore this file")
 
+def move_folders():
+	original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(package_separator, os.sep)
+	destiny_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + new_package.replace(package_separator, os.sep)
+	shutil.move(original_route, initial_folder + os.sep + "my_temporal_folder")
+	shutil.rmtree(initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep)
+	print("new java route: " + destiny_route)
+	shutil.move(initial_folder + os.sep + "my_temporal_folder", destiny_route)
 
-check_length()
+check_original_route()
 show_arguments()
-list_folder(os.path.abspath("."))
+change_files(initial_folder)
+move_folders()
 print("finished success")
