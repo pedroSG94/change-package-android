@@ -2,13 +2,25 @@ import os
 import sys
 import shutil
 
-#TODO: add proguard support
 #TODO: add NDK support
 
 initial_folder = os.path.abspath(".")
 package_separator = "."
+
+#arguments
 old_package = sys.argv[1]
 new_package = sys.argv[2]
+proguard = None
+
+def charge_proguard():
+	global proguard
+	if(len(sys.argv) > 3):
+		proguard = sys.argv[3]	
+
+def show_arguments():
+	print("old package: " + old_package)
+	print("new package: " + new_package)
+	print("proguard: " + proguard)
 
 def check_original_route():
 	print("checking original package...")
@@ -18,10 +30,6 @@ def check_original_route():
 	else:
 		print("original folder not found, write a correct original package")
 		sys.exit()
-
-def show_arguments():
-	print("old package: " + old_package)
-	print("new package: " + new_package)
 
 def replace_text(path_file, old_text, new_text):
 	f = open(path_file, "r")
@@ -48,6 +56,10 @@ def change_files(path_folder):
 			#only change java, xml and gradle files
 			if(str(f).endswith(".java") or str(f).endswith(".xml") or str(f).endswith(".gradle")):
 				replace_text(path_folder + os.sep + str(f), old_package, new_package)
+			elif(proguard != None):
+				if(str(f) == proguard):
+					replace_text(path_folder + os.sep + str(f), old_package, new_package)
+					print("proguard changed")
 			else:
 				print("ignore this file")
 
@@ -59,8 +71,12 @@ def move_folders():
 	print("new java route: " + destiny_route)
 	shutil.move(initial_folder + os.sep + "my_temporal_folder", destiny_route)
 
-check_original_route()
-show_arguments()
-change_files(initial_folder)
-move_folders()
-print("finished success")
+def init_script():
+	charge_proguard()
+	show_arguments()
+	check_original_route()
+	change_files(initial_folder)
+	move_folders()
+	print("finished success")
+
+init_script()
