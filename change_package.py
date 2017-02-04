@@ -20,7 +20,7 @@ def charge_proguard():
 def show_arguments():
 	print("old package: " + old_package)
 	print("new package: " + new_package)
-	print("proguard: " + proguard)
+	print("proguard: " + str(proguard))
 
 def check_original_route():
 	print("checking original package...")
