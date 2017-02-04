@@ -12,8 +12,16 @@ Should work on Mac and Windows (not tested)
 
 2- Execute the script
 
+Normal execute:
+
 ```
 python3 change_package.py com.example.pedro com.company.project
+```
+
+If you use proguard:
+
+```
+python3 change_package.py com.example.pedro com.company.project myproguardname.pro
 ```
 
 3- Rebuild your project
