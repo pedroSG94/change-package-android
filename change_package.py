@@ -2,6 +2,9 @@ import os
 import sys
 import shutil
 
+#TODO: add proguard support
+#TODO: add NDK support
+
 initial_folder = os.path.abspath(".")
 package_separator = "."
 old_package = sys.argv[1]
@@ -15,7 +18,6 @@ def check_original_route():
 	else:
 		print("original folder not found, write a correct original package")
 		sys.exit()
-	#sys.exit()
 
 def show_arguments():
 	print("old package: " + old_package)
