@@ -63,15 +63,22 @@ def change_files(path_folder, old_package):
             replace_text(path_folder + os.sep + str(f), old_package, new_package)
 
 
-def move_folders(old_package):
-    original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(
+def move_code_folder(folder_name, old_package):
+    original_route = initial_folder + os.sep + "src" + os.sep + folder_name + os.sep + "java" + os.sep + old_package.replace(
         package_separator, os.sep)
-    destiny_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + new_package.replace(
+    destiny_route = initial_folder + os.sep + "src" + os.sep + folder_name + os.sep + "java" + os.sep + new_package.replace(
         package_separator, os.sep)
     shutil.move(original_route, initial_folder + os.sep + "my_temporal_folder")
-    shutil.rmtree(initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep)
+    shutil.rmtree(initial_folder + os.sep + "src" + os.sep + folder_name + os.sep + "java" + os.sep)
     print("new java route: " + destiny_route)
     shutil.move(initial_folder + os.sep + "my_temporal_folder", destiny_route)
+
+
+def move_folders(old_package):
+    path_folder = initial_folder + os.sep + "src"
+    for f in os.listdir(path_folder):
+        if os.path.isdir(path_folder + os.sep + f):
+            move_code_folder(str(f), old_package)
 
 
 def init_script():
