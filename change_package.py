@@ -2,81 +2,88 @@ import os
 import sys
 import shutil
 
-#TODO: add NDK support
-
-initial_folder = os.path.abspath(".")
 package_separator = "."
-
-#arguments
-old_package = sys.argv[1]
+# arguments
+initial_folder = sys.argv[1]
 new_package = sys.argv[2]
-proguard = None
 
-def charge_proguard():
-	global proguard
-	if(len(sys.argv) > 3):
-		proguard = sys.argv[3]	
 
-def show_arguments():
-	print("old package: " + old_package)
-	print("new package: " + new_package)
-	print("proguard: " + str(proguard))
+def get_old_package():
+    build_file = initial_folder + os.sep + "build.gradle"
+    f = open(build_file, "r")
+    file_text = f.read()
+    for line in file_text.split("\n"):
+        if "applicationId" in line.strip():
+            return line.strip().split(" ")[1].strip().replace("\"", "")
+    return None
 
-def check_original_route():
-	print("checking original package...")
-	original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(package_separator, os.sep)
-	if(os.path.isdir(original_route)):
-		print("original folder exists")
-	else:
-		print("original folder not found, write a correct original package")
-		sys.exit()
+
+def show_arguments(old_package):
+    print("old package: " + old_package)
+    print("new package: " + new_package)
+
+
+def check_original_route(old_package):
+    print("checking original package...")
+    original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(
+        package_separator, os.sep)
+    if os.path.isdir(original_route):
+        print("original folder exists")
+    else:
+        print("original folder not found, write a correct original package")
+        sys.exit()
+
 
 def replace_text(path_file, old_text, new_text):
-	f = open(path_file, "r")
-	file_text = f.read()
-	f.close()
-	t = file_text.replace(old_text, new_text)
-	f = open(path_file, "w")
-	f.write(t)
-	f.close()
+    f = open(path_file, "r")
+    try:
+        file_text = f.read()
+        f.close()
+        t = file_text.replace(old_text, new_text)
+        f = open(path_file, "w")
+        f.write(t)
+        f.close()
+    except UnicodeDecodeError:  # This file is not text plain
+        f.close()
 
-def change_files(path_folder):
-	print("current directory: " + path_folder)
-	
-	for f in os.listdir(path_folder):
-		print("file " + str(f))
-		#is a folder
-		if os.path.isdir(path_folder + os.sep + f):
-			abs_path = os.path.abspath(path_folder + os.sep + str(f))
-			#ignore build folder
-			if(str(f) != "build"):
-				change_files(abs_path)
-		#is a file
-		else:
-			#only change java, xml and gradle files
-			if(str(f).endswith(".java") or str(f).endswith(".xml") or str(f).endswith(".gradle")):
-				replace_text(path_folder + os.sep + str(f), old_package, new_package)
-			elif(proguard != None):
-				if(str(f) == proguard):
-					replace_text(path_folder + os.sep + str(f), old_package, new_package)
-					print("proguard changed")
-			else:
-				print("ignore this file")
 
-def move_folders():
-	original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(package_separator, os.sep)
-	destiny_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + new_package.replace(package_separator, os.sep)
-	shutil.move(original_route, initial_folder + os.sep + "my_temporal_folder")
-	shutil.rmtree(initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep)
-	print("new java route: " + destiny_route)
-	shutil.move(initial_folder + os.sep + "my_temporal_folder", destiny_route)
+def change_files(path_folder, old_package):
+    print("current directory: " + path_folder)
+
+    for f in os.listdir(path_folder):
+        print("file " + str(f))
+        # is a folder
+        if os.path.isdir(path_folder + os.sep + f):
+            abs_path = os.path.abspath(path_folder + os.sep + str(f))
+            # ignore build folder
+            if str(f) is not "build":
+                change_files(abs_path, old_package)
+        # is a file
+        else:
+            replace_text(path_folder + os.sep + str(f), old_package, new_package)
+
+
+def move_folders(old_package):
+    original_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + old_package.replace(
+        package_separator, os.sep)
+    destiny_route = initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep + new_package.replace(
+        package_separator, os.sep)
+    shutil.move(original_route, initial_folder + os.sep + "my_temporal_folder")
+    shutil.rmtree(initial_folder + os.sep + "src" + os.sep + "main" + os.sep + "java" + os.sep)
+    print("new java route: " + destiny_route)
+    shutil.move(initial_folder + os.sep + "my_temporal_folder", destiny_route)
+
 
 def init_script():
-	charge_proguard()
-	show_arguments()
-	check_original_route()
-	change_files(initial_folder)
-	move_folders()
-	print("finished success")
+    old_package = get_old_package()
+    if old_package is not None:
+        show_arguments(old_package)
+        check_original_route(old_package)
+        change_files(initial_folder, old_package)
+        move_folders(old_package)
+        print("finished success")
+    else:
+        print("applicationId not found in app/build.gradle")
+
 
 init_script()

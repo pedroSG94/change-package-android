@@ -8,25 +8,21 @@ Should work on Mac and Windows (not tested)
 
 #Usage
 
-1- Put the script in your app  or module folder in your project
-
-2- Execute the script
-
-Normal execute:
-
-```
-python3 change_package.py com.example.pedro com.company.project
-```
-
-If you use proguard:
+1 - Execute script:
+  arguments:
+    1 - module path
+    2 - new package name
 
 ```
-python3 change_package.py com.example.pedro com.company.project myproguardname.pro
+python3 change_package.py modulepath newpackagename
+
+//Example
+python3 change_package.py /home/pedro/myproject/app com.pedro.example
 ```
 
-3- Rebuild your project
+2 - Rebuild your project
 
 #Note
 
-Projects with NDK not supported (script work but you need change NDK youself).
+Projects with NDK not supported (script work but you need change NDK files yourself).
 
